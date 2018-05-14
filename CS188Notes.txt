@@ -1,0 +1,1396 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#   CS188Notes.c                                       :+:      :+:    :+:     #
+#                                                     +:+ +:+         +:+      #
+#    By: scollet <marvin@42.fr>                     +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2017/06/14 19:11:10 by scollet           #+#    #+#              #
+#   Updated: 2017/06/14 20:23:18 by scollet          ###   ########.fr         #
+#                                                                              #
+# **************************************************************************** #
+
+# VIDEO LECTURE 1 -
+
+	I just deleted my notes, oops
+
+	Agents that plan.
+
+	Reflex agents choose action based on current percept
+
+	May have memory or a model of world's state. Do not consider consqeuence. Can they be rational? Maybe????
+
+	The reflex agent has little restriction. What if ?
+
+	Planning agents actually make decisions based on consequence of actions. Must have a evolving model of the equally evolving world in response
+		to its actions.
+
+		It must formulate a goal or a test. Has the goal been achieved????
+
+	search problems consitst of :
+		a state space
+		a successor function with actions, cost
+			what actons are available to you? What is the next state going to be? What is the cost?
+		a start state and a goal test
+			where the agent starts and have you completed the goal?
+		a solution is a squence of action that transform a start state into a goal state
+
+	Search problems are models.
+
+	traveling in Romania :
+		a roadmap. Our start state is Arad and we want to get to Bucharest.
+			state space: cities
+		successor function: roads, go to adjacent city with cost=distance
+	Problem is pathing
+	The worls state includes ever last detail of the environment
+	The search state keeos only the deatils needed for planning(abstraction)
+	Pathing:
+		states (x, y)
+		actions are moves in direction
+		successor: update location
+		goal test is (dx, dy) where d is some change
+		problem: eat all dots
+	states(x, y)
+	actions are moves in direction
+	succressor update locations
+	goal test: no more dots
+
+	how many world states?
+	how many states for pathing?
+
+	a state space graph is a mathematicla representation of a search problem.
+		Nodes are world configurations
+		arcs represent successors
+		the goal test is a set of goal nodes
+	in a state space graph, each state occurs only once
+	we can rarely build this full graph in memory, maybe with arbitrary datasets ?? probably not
+
+	search tree
+		a what if tree of plans and their outcomes
+		the start state ois the root node
+		children correspdon to succressors
+		nodes show states but correspond to plans that achieve those states
+		for most problems we can never actually build the entire treeeeeeeeeeeee
+
+	k
+
+	each node in the search tree is an entire path in the state space graph
+
+	we construct both on demand and we construct as little as possible
+
+	infintely deep search trees
+
+	what is a TREE SEARCH then?
+
+	search :
+		expand our potentional plans
+		maintain a fringe of partial plans under consideration
+		try to expand as few tree nodes as possible
+
+
+
+function tree_search(problem, strategy)
+{
+	intilialize the search tree using the intial state of the problem
+	loop do
+		if there are no candidates for expansion
+			then return failure
+		choose a leaf node for expansion according to strategy
+		if the node contains a goal state
+			then return solutions
+		else
+			expand the node and add the resulting nodes to the search tree
+	end
+	return (solution | failure)
+}
+
+	we are trying to find an optimal path
+
+	------ DEPTH-FIRST SEARCH ------
+		strategy, expand a deepest nod first
+		fringe is a LIFO stack
+
+	is it guaranteed to find a solution of one exists?
+	is it guaranteed to find the least cost path?
+	is it time complex?
+	is it space complex?
+
+	solutions could be at various depths
+
+	what nodes does DFS expand?
+		some left prefix of the tree
+		could process entire tree
+		if m is finite, takes time O(b^m) where m is the total number of layers
+
+	how much space does the fringe take?
+		only has siblings on the path to root, so O(bm)
+
+	is it complete?
+		m could be infinite, so only if we precent cycles
+
+	is it optimal?
+		NOPE, it finds the leftmost solution, regardless of the depth of cost
+
+	------ BREADTH-FIRST SEARCH ------
+		expand a shallowest node first
+		fringe is a FIFO queue
+
+	What nodes does BFS expand?
+		processes all nodes above shallowest solution
+		let depth of shallowes solution be s
+		search time takes O(b^s) where s is a number of tiers to Goal
+
+	how much space does the fringe take?
+		O(b^s)
+
+is it complete?
+	given a finite solution
+
+is it optimal?
+	depends. only if all costs are 1
+
+DFS vs BFS WHO WINS????
+
+combine them.
+
+When is BFS preferred?
+	When the set is thin
+
+When is DFS preferred?
+	When the set is shallow
+
+Iterative Deepening?
+	get DFS's space advantage w/ BFS's time.shallow-solution advantages
+	run a DFS with depth limit 1, if no solution continue with depth limit++
+	most work happens in the lowest level searched so it's pretty good
+
+------ UNIFORM COST SEARCH ------
+	strategy, expand cheapest node first
+	fringe is a priority queue
+
+	what nodes does it expand?
+	all nodes that have a cost less than the cheapest goal expanded
+	least cost goal
+	processes all nodes with cost less than cheapest solution
+	if that solution costs C* and arcs cost at least e, then the effective depth is roughyl C*/e where e is epsilon
+
+how much space?
+	roughly last tier so O(b^(C*/e))
+
+is it complete?
+	assuming best solution has a finite cost and minimum arc cost is positive
+
+is it optimal?
+	yes (A*)
+
+UCS explore increasing cost contours
+
+UCS is complete and optimal
+
+explores options in every "direction"
+
+uniform cost search expands more quickly over less costly nodes
+
+All these search algorithms are the same except for fringe strategies
+	conceptually, all fringes are priority queues
+	practically, for DFS and BFS you can avoid the log(n) overhead from an actual priority queue
+	can even code on implementation that takes a variable queueing object
+
+your search is only as good as your models
+
+# VIDEO LECTURE 2
+# VIDEO LECTURE 3
+# VIDEO LECTURE 4
+# VIDEO LECTURE 5
+# VIDEO LECTURE 6
+
+# VIDEO LECTURE 7 - Uncertainty and Utilities
+
+Uncertain outcomes controlled by chance and not adversary
+
+randomness inhibits prediction
+unpredictable opponents effect the result of an action
+actions can fail
+
+values should reflect average-case outcomes not worst-case
+this is expectimax
+
+computer average score under optimal play
+	max nodes
+	chance nodes are like min nodes but outcome is uncertain
+	calulcate expected utilities
+	take weighted average
+
+how to formalize the underlying uncertainty?
+
+just because you were rational does not mean you'll be successful. Sometimes you are unlucky
+
+if the state is terminal, return state's utility
+if the next agent is max, return max-value(state)
+if the next agent is EXP return exp-value(state)
+
+def exp-value(state) {
+	init v = 0;
+	for each successor of state {
+		p = probability(successor)
+		v += p * value(successor)
+	}
+	return v
+}
+
+depth-limited expectimax
+
+for the wrost-case minimax reasonig, teminal function sclae doesn't matter
+	we want better states to have higher evaluations
+	we call this insensitivity to monotonic transformations
+
+for average-case exectimax reason we need magnitudes to be meaningful
+
+a random variable represents an event whose outcome is unknown
+a probability distribution is an assignment of erights to outcomes
+
+traffic on freeway?
+	is there traffic?
+	what are the possible outcomes?
+	what is the distribution of outcomes?
+
+probabilities are 0 <= P < 1
+
+all outcomes sum to one
+
+probabilities may change
+reason and update your probabilities
+
+the expected value of a function of a random variable is the average, weighted by the probability distribution over outcomes
+
+given traffic, how long does it take to get to the airport?
+
+in expectimax search we have a probabilistic model of how the opponent or environment will behave in any state
+	model could be simply uniform (random)
+	model could be sophisticated
+	we have a chance node for any outcome our of our control, opponent, or environment
+	the model might say the adversarial actions are likely
+
+assume each chance node magically comes along with probabilities that specify the distribution over its outcomes
+
+dangerous pessimism and optimism
+why should we average utilities?
+
+a rational agent should choose the action that maximizes its expected utility given its knowledge
+
+where do utilities come from?
+how do we know such utilities even exits?
+how do we know that averagigin...
+
+utilities are function fromoutcomes to real numbers that encode an agents preferences
+
+where do they come from?
+
+utilities summarize the agents goals
+any rational pregerences can be summarized as a utility function
+
+we hard-wire utilities and let behaviors emerge
+	why don't we let them pick utilities
+	why don't we prescribe behaviors
+
+when you encode utilities, mean what you say
+
+an agent must have preferences among
+	prizes are outcomes
+	lotteries are situations with uncertain prizes
+
+L = [p, A; (1 - p), B]
+
+Preference A > B
+Indifference A ~ B
+
+rationality
+	we want some constraints on preferences before we call them rational
+
+Axiom of Transivity (A > B) ^ (B > C) => (A > C)
+	an agent with intransitive preferences can lead to a slippery slope
+
+axioms of rationality
+
+Orderability
+	(A > B) ^ (B > A) \/ (A ~ B)
+Transivivty
+	see above
+Continutiy
+	A > B > C => Ep[p, A; 1 - p, C] ~ B
+Substituability
+	A ~ B => [p, A; 1 - p, C] ~ [p, B; 1 - p, C]
+Monotonicity
+	A > B =>
+		()
+given any preferences satisfying these constraints, there exists a real-valued function U such that
+			U(A) >= U(B) <=> A >= B
+			U([p1, S1; ... ; pn, Sn]) = EipiU(Si)
+
+		choose the action that maximizes expected utility
+		an agent can be entirely rational without ever representing or manipulating utilities and probabilities
+	utility scales
+		normalized utilities u+ = 1.0, u = 0.0
+	behavior is invariant under positive liner transformation
+	utilities map states ot real numbers
+		which numbers?
+	standard approach to assessment of human utilities
+	compare a prize A to strandard lottery Lp
+	between best possible prize u+, with prob p
+	worst possible catastrophe u-, with prob 1-p
+	adjust lottery prob p until indiff A ~ Lp
+	resulting p
+	money does not behave as a utility function
+
+	given lottery L = [p, $X; (1 - p), $Y]
+	the expected monetary value EMV(L) is p * X + (1 - p) * Y
+	U(L) = p * U($X) + (1 - p) * U($Y)
+	U(L) < U(EMV(L))
+
+	people are risk-averse
+	when deep in debt, people are risk-prone
+
+	the certainty equivalent is the value accepted in lieu of lottery
+	the difference is the insurance premium
+
+# VIDEO LECTURE 8 - MDPs
+
+	Non-deterministic search
+	noisy movement - actions do not always go as planned
+	the agent recieves rewards at each time step
+		small "living" rewards each step
+		big rewards come at the end
+
+	goal: maximize sum of rewards
+
+	MDP is defined by
+		a set of states s E S
+		a set of actions a E A
+		a transition function T(s, a, s')
+			prob that a from s leads to s' P(s' | s, a)
+			also called model of dynamics
+		a reward function R(s, a, s')
+			R(s) or R(s')
+		a start state
+			you know what this is
+		and possibly a terminal state
+			because infinite horizons are a thing
+
+	MDPs are non-deterministic search problems
+		one way to solve them is with expectimax
+
+	given a state, the past and future are usually independent
+
+	for MDPs, we want an optimal policy PI*: S -> A
+	a policy gives an action for a state
+	an optimal policy is one that maximizes expected utility if followed
+	an explicit policy defines a reflex agent
+
+	outcomes depend only on the current state
+	P(St+1 = s' | St = st, At = at)
+
+	this is just like search, successor function only depends on the current state, not history
+	Example : racing
+		a robot car wants to travel really far, really fast
+		states: it can be cool, warm, or overheated
+		actions: slow, fast
+
+	if you get overheated YOU'RE DONE BOY
+
+	going faster gets double reward
+	each MDP state projects an expectimax-like search tree
+	Q-states are a thing, they are the chance what the new state will look like after an action is taken
+	s is a state
+	(s, a, s') transition function
+	T(s, a, s') = P(s' | s, a) probability function
+
+	utilities of sequences
+	more or less [1, 2, 2] or [2, 3, 4]
+		the second is better, obvs
+	now or later? [0, 0, 1] or [1, 0, 0]
+		if you take the gem now, you get 1, but if you have to take more steps to get it, the reward is modified
+		by gamma or g.
+	this is called discounting
+		it's reasonable to maximize the sum of rewards
+	how to discount?
+		each time we descend a level, we multiply the discount once
+	why?
+		sooner rewards have higher utility
+		it helps our algorithms converge
+		if we wait, we might not get the reward
+	discount satisfies this value 0 <= g < 1
+	U([1, 2, 3]) = 1 * 1 + 0.5 * 2 + 0.25 * 3
+	U([1, 2, 3]) < U ([3, 2, 1])
+
+	if we assume stationary preferences
+	there are only two ways to define utilities
+	additive utility  U([r0, r1, r2, ... ]) = r0 + r1 + r2 + ...
+	or discounted utility
+
+	if we don't discount, what heppens?
+	infinite utilities are bad
+	solutions:
+		give yourself a finite horizon
+			similar to depth-limited search
+			terminate after t steps
+		smaller gamma means smaller horizon
+		absorbing state
+			ends world at some point
+	MDP
+		set of states S
+		start state s0
+		set of actions A
+		transitions P(s' | s, a) or T(s, a, s')
+		rewards R(s, a, s') and discount g
+
+		policy is choice of action for each state
+		utility is sum of discounted rewards
+
+# VIDEO LECTURE 9 - MDPs II
+	noisy movement, actions do not always go as planned
+	the agent recieves rewards each time step
+		small living rewards and big end rewards
+	MDP
+		states
+		actions
+		transitions T(s, a, s')
+		rewards R(s, a, s') and discount gamma
+		start state s0
+	quantitites
+		policy is map of states to actions
+		utility	is sum of discounted rewards
+		values expected future utility from a state (max node) average
+		Q-values expected future utility from a q-state (chance node)
+
+	optimal quanitites
+		the utility of a state s
+			V*(s) = expected utility starting in s and acing optimally
+	the utility of a q-state (s, a)
+		Q*(s, a) is the expected utility starting out having taken action a from state s and THEN acting optimally
+	the optimal policy
+		PI*(s) is the optimal action from state s where PI is the chosen policy
+
+	the Bellman equations tell us how to be optimal
+	Step 1: Take correct first action
+	Step 2: Keep being optimal
+	got it?
+	good.
+
+	definition of optimal utility with one-step lookahead
+		V*(s) = max over a Q*(s, a)
+		Q*(s, a) = average of s' T(s, a, s')[R(s, a, s') + gV*(s)]
+
+	these are Bellman equations. They characterize optimal values in a way we'll use over and over
+
+	what is Value iteration?
+		value iteration computes the optimal values by changing equality sign into an assignment
+	Vk+1(s) <- max a, average of s' T(s, a, s')[R(s, a, s') + gVk(s')]
+	value iteration is just a fixed point solution method
+		through the Vk vectors are also interpretable as tim-limited values
+	do the optimal action
+	Expectimax trees max over all actions to compute the optimal values
+	if we fixed some policy PI(s), then the tree would be simpler, only one action per state
+		the tree's value would depend on which policy we fixed
+	compute the utility of a state s under a fixed policy
+	define the utility of a state s, under a fixed policy PI
+		V^PI(s) = expected total discounted rewards starting in s and following PI
+	V^PI(s) = average s' T(s, PI(s), s')[R(s, PI(s), s') + gV^PI(s')]
+	recursive relation
+	function PI takes a state and returns an action
+
+	policy evaluation example
+		literally a bunch of images. Basically uniform policies are not always ideal, you need to evaulate
+	how do we calculate the V for a fixed policy PI
+
+	Idea 1: turn recursive Bellman equations into updates
+		V^PI0(s) = 0
+		V^PIk+1(s) <- average s' T(s, PI(s), s')[R(s, PI(s), s') + gV^PIk(s')]
+		efficiency is O(S^2) per iteration
+
+	Idea2: without maxes, the Bellman equations are just a linear system
+		solve with Matlab or favorite linear system solver.. kkkkkkkkkk
+
+	what if we get values and want to find policy?
+		imagine we have optimal values V*(s)
+		how should we act?
+		we need to do mini-expectimax
+			PI*(s) = arg max a, average s' T(s, a, s')[R(s, a, s') + gV*(s')]
+		this is called policy extraction since it gets the policy implied by the values
+
+	computing actions from Q-values
+		imagine we have the optimal Q-values
+		how should we act?
+			they are completely trivial to decide
+			PI*(s) = arg max a Q*(s, a)
+
+	Policy Iteration
+		value iteration repeats the Bellman updates
+
+	Problem 1: it's slow O(S^2A) per iteration
+	Problem 2: The max at each state rarely changes
+	Problem 3: the policy often converges long before the values
+
+	policy iteration
+		Step 1: policy evaluation, calculate utilities for some fixed policy until convergence
+		Step 2: Policy improvement, update policy using one-step lookahead with resulting converged utilities as fiture values
+		repeat steps until policy converges
+
+	This is policy iteration
+		it's still optimal
+		can converge much faster under some conditions
+	evaluation: for fixed current policy PI, find values with policy evaluation
+		iterate until values converge
+		V^PI^ik+1*(s) <- average s' T(s, PIi(s), s')[R(s, PIi(s), s') + gV^PI^ik(s')]
+	for fixed values, get a better policy using policy extraction
+		one-step lookahead
+		PIi+1(s) = arg max a, average s' T(s, a, s')[R(s, a, s') + gV^PI^i(s')]
+
+	both value iteration and policy iteration compute the same thing (all optimal values)
+	in value iteration
+		every iteration update both the values and the policy
+
+	in policy iteration
+		we do several passes that update utilities with fixed policy
+
+	if you want to compute optimal values, use value iteration or policy iteration
+	if you want to compute values for a particular policy, use policy evaluation
+	if you want to turn your values into a policy, use policy extraction
+
+	they are basically all the same
+	they only chance when we plug in a fixed policy or max over actions
+
+	Double Bandit problem
+		it's a problem
+
+	solving MDP is offline planning
+		you determine all quantities through computation
+		you need to know the details of the MDP
+		you do not actually play the game
+
+	there was an MDP but you couldn't solve it with just computation
+	you need to actually figure it out!
+
+	reinforcement learning
+		exploration: trying unknowns
+		exploitation: do what you know
+		regret: even through you played intelligently, you made mistakes
+		sampling: because of chance, you have to keep trying options
+		difficulty: learning can be much harder than solving a known MDP
+
+# VIDEO LECTURE 10 - Reinforcement Learning I
+	reinforcement learning
+	"dangling the carrot"
+	Doble Banditos
+	two slot machines, bleu et rouge
+	blue is always $1
+	red is double or nothing
+	double bandit MDP
+		no discount
+		100 time steps
+		both states have the same values
+	actions are blue and red
+	states are win and lose
+	if you play in blue you stay in win, red you might stay in win
+
+	RI learning is taking actions that affect the environemnt. then the environment gives the agent some reward
+	there is still an underlying Markov decision process
+	we don't necessarily know the transition function or the reward function
+	AI starts out without any knowledge of how to perform actions
+	through training their improve their working knowledge
+
+	we don't know which states are good or what the actions do
+	must actually try actions and states out to learn
+
+	we must learn empirical MDP model
+		count outcomes s' for each s, a
+		normalize to give an estimate of T(s, a, s')
+		discover each R(s, a, s') when we experience (s, a, s')
+
+	what is the probability of ending up in s'?
+		start acting in the world
+		increment the number of times I was in s and ended up in s' by 1
+		every time I take an action in a s, I get an outcome, count number
+			of time we ended up in states and calculate the probability by dividing
+			the number of times we ended up in that state
+
+	model free learning
+		E[A]≈1/N  ∑a_i
+		  				i
+	Passive Reinforcement Learning
+		input: fixed policy π(s)
+		transitions: T(s, a, s')
+		rewards: R(s, a, s')
+		goal: learn the state values
+
+		learner is along for the ride
+		no choice about what actions to take
+		just execute policy and learn from experience
+		this is NOT offline planning, you actually take actions in the world
+
+	Direct Evaluation is easy to understand
+		it doesn't require any knowledge of T, R
+		it eventually computes the correct average values
+
+	Why not use policy evaluation?
+		simplified Bellman updates calculate V for a fixed policy
+			each round, replace V with a one-step-lookahead layer over V
+			V_O ^π(s) = 0
+
+	take samples of outcomes s' and average
+	sample_1 = R(s, π(s), s'_1) + gV_k ^π(s'_1)
+		V_k+1 ^π(s) <- 1/n∑
+											i
+
+	Temporal Difference Learning
+		learn from every experience
+			update V(s) each time we experience a transition (s, a, s', r)
+		Temp Diff learning of values
+			policy still fixed, still doing evaluation
+			move values toward value of whatever successor occurs: running average
+				Sample of V(s) sample = R(s, π(s), s') + gV^π(s')
+				Update to V(s) V^π(s) <- (1 - a)V^π(s) + (a)sample
+				Same Update 	 V^π(s) <- V^π(s) + a(sample - V^π(s))
+
+	Exponential Moving Average
+		EMA
+			the running interpolation update X_n = (1 - a) • X_n-1 + a • X_n
+		makes recent samples more important
+
+	TD value learning is a model-free way to do policy evaluation, mimicking Bellman updates with running sample averages
+		learn q-values
+
+	Active Reinforcement Learning
+		Learn, optimal policy
+		Q-value iteration
+			Value iteration: find successive (depth-limited) values
+			Start with V_0(s) = 0
+			Given V_k' calculate the depth k+1 values for all states
+
+	Q-values are more useful, so compute them instead
+	 	start with Q_0(s, a) = 0, which we know is right
+		given Q_k', calculate the depth k+1 q-values for all q-states
+
+	Q-learning
+		Q-learning: sample-based Q-value iteration
+
+	Learn Q(s, a) values as you go
+		receive a sample (s, a, s', r)
+		consider your old estimate Q(s, a)
+		consider your new sample estimate
+
+		sample = R(s, a, s') + gmaxQ(s', a')
+														 a'
+
+		incorporate the new estimate into a running average
+			Q(s, a) <- (1 - a)Q(s, a)
+
+# VIDEO LECTURE 11 - Reinforcement Learning II
+
+	we still assume MDP
+		set of states
+		set of actions
+		model
+		reward
+
+	still looking for π
+	don't know T or R, so we must try out actions
+	compute all averages over T using sample outcomes
+
+	MDP model-based
+		compute V*, Q*, π* with VI/PI on approx MDP
+		Evaluate a fixed policy π with PE on approx MDP
+
+	MDP model-free
+		compute V*, Q*, π* with Q-learning
+		evaluate a fixed policy π with Value learning
+
+	Model-Free Learning
+		model-free(temporal difference) learning
+			experience world through episodes
+				(s, a, r, s', a', r', s''....)
+			update estimates each transitions (s, a, r, s')
+			over time, updates will mimix Bellman equations
+
+	Q-learning
+		we'd like to do q-value updates to each q-state
+		Q_k+1(s, a) <- ∑T(s, a, s') [R(s, a, s') + gmaxQ_k(s', a')]
+									 s'                            a'
+	  but can't compute this update without knowing T, R
+
+	Instead, computs average as we go
+		Recieve a smaple transition (s, a, r, s')
+		this sample suggets
+			Q(s, a) ≈ r + gmaxQ(s', a')
+											a'
+		but we want to average over results from (s, a) WHY??
+		so keep a running average
+
+	Q-Learning Properties
+		Q-learning converges to otpimal policy, even if you act suboptimally
+		this is called Off-Policy Learning
+		Caveats
+			you have to explore enough
+			you have to eventually make the learning rate small enough
+			but not decrease it too quickly
+			basically, in the limit, it doesn't matter how you select actions
+
+	Exploration vs. Exploitation
+
+	How to explore?
+		several schemes for forcing exploration
+			simplest: random actions
+				every time step, flip a coin
+				with small prob, act randomly
+				with large prob, act on current policy
+
+			problems with random actions?
+				you do eventually explore the space, but keep thrashing around once learning is done
+				one solution: lower epsilon over time
+				another solution: exploration functions
+
+
+	Exploration Functions
+		When to explore
+			random actions: explore a fixed amount
+			better idea: explore areas whose badness is not established, eventually stop exploring
+
+		Exploration function
+			takes a value extimate u and a visit count n and returns an optimistic utility, e.g f(u, n) = u + k / n
+			regular Q-update: Q(s, a) <-a R(s, a, s') + gmaxQ(s', a')
+																										a'
+			modified Q-update: Q(s, a) <-a R(s, a, s') + gmaxf(Q(s', a'), N(s', a'))
+																										 a'
+	Regret
+		even if you learn the optimal policy, you still make mistakes along the way
+		regret is a measure of your total mistake cost: the difference between your expected rewards, including youthful
+			suboptimality, and expected rewards
+		minimizing regret goes beyond learning to be optimal - it requires optimally learning to be optimal
+		example; random exploration and exploration function both end up optimal, but random exploration has higher regret
+
+	generalizing across states
+		basic q-learning keeps a table of all q-values
+		in realistic situation, we cannot possibly learn about every single state
+			too many states to visit them all in training
+			too many states to old the q-tables in memory
+		instead we can to generalize
+			learn about some small number of training states from experience
+			generalize that experience to new, similar situations
+			this is a fundamental
+
+		example: pacman
+			let's say we discover through experience that this state is bad
+			in naive q-learning we know nothing about similar states
+
+		feature-based representations
+			solution: describe a state using a vector of features
+				features are function from states to real numbers that capture important properties of the state
+				example features
+					distance to closest ghost
+					distance to closest dot
+					number of ghosts
+					1 / (dist to dot)^2
+					is pacman in a tunnel?
+					etc.
+				can also describe a q-state (s, a) with features
+
+			linear value functions
+				sing a feature representation, we can write a q function for any state a few weights
+					V(s) = w_1f_1(s) + ... + w_nf_n(s)
+					Q(s, a) = w_1f_1(s, a) + ... + w_nf_n(s, a)
+				advantage: our experience is summed up in a few powerful numbers
+				disadvantage: states may share features but actually be very different in value
+				q-learning with linear q-functions
+					transition = (s, a, r, s')
+					difference = [r + gmaxQ(s', a')] = Q(s, a)
+															a'
+					Q(s, a) <- Q(s, a) + a[difference]         Exact Q's
+
+		you compute how wrong you were and you try to make that value less
+
+		Approximate q-learning
+			q-learning with linear q-functions
+			transition  = (s, a, r, s)
+			difference = [r + gmaxQ(s', a') - Q(s, a)]
+													a'
+			Q(s, a) <- Q(s, a) + a[difference]  Exact Q's
+			w_i <- w_i + a[difference]f_i(s, a) Approximate Q's
+
+		intuitive interpretation
+			adjust weights of active features
+			if something unexpectedly bad happens, blame the feature that were on:
+				disprefer all states with that state's features
+
+		Example:q-pacman
+			Q(s, a) = 4.0f_DOT(s, a) - 1.0f_GST(s, a)
+			closer to dot gets bigger, subtract ghost if ghost is nearby
+
+		Q-learning and least squares
+		linear approx: regression*
+			y = w_0 + w_1f_1(x)
+			the dimension gets higher as you have more features
+
+		how to figure out what weights you should use?
+
+	minimizing error*
+		imagine we had only one point x, with features f(x), target value y, and weights w:
+			error(w) = 1/2(y - ∑w_kf_k(x))^2
+			                   2
+			you want to make error small
+			for a small step size alpha, you take a step away from the error step
+		approx q update explained
+			w_m <- w_m + a[r + gmaxQ(s', a') - Q(s, a)] {INCOMPLETE}
+
+	overfitting: why limiting capacity can help*
+
+	policy search
+		problem: often the feature-based policies that work well(win game, max utilities) aren't
+			the ones that appox V/Q best
+			q-learning's priority: get q-values close
+			action selection priority: get ordering of q-values right
+			we'll see this distinction between modeling and prediciton again later in the course
+		solution: learn policies that maximize rewards, not the values that predict them
+		policy search: start with an ok solution hen fine-tune by hill climbing on feature weights
+
+		simplest search:
+			start with an initial linear value function or q-function
+			nudge each feature weight up and down and see if your poicy is better than before
+		problems:
+			how do we tell the policy got better?
+			need to run many sample eps
+			if there are a lot of feature this can be impractical
+
+# VIDEO LECTURE 12 - Probability
+
+	problem: often the feature-based policies that work well aren't the ones that approx V/Q best
+	solution: learn policies that max rewards, not the values that predict them
+	policy search: start with an ok solution then fine-tune by hill climbing on feature weights
+
+	simple p search
+		start with an initial linear value function or q-function
+		nudge each feature weight up and down and see if your policy is better than before
+
+	probs
+		how do we tell the policy got better
+		need to run many sample eps
+
+	PART I - AI methods can solve problems in
+		search
+		constrinat satisfaction problems
+		games
+		MDP's
+		Ri Learning
+
+	PART II - probabilisitic reasoning
+		diagnosis
+		speech recognition
+		tracking objects
+		robot mapping
+		genetics
+		error correcting codes
+
+	PART III - Machine learning
+
+	Probability;
+		random variables
+		joint and marginal distributions
+		conditional distribution
+		product reul, cahine ruel, Baye's rule
+		inference
+		independence
+
+	you'll need all this stuff A LOT for the next few weeks, so make sure you go over it now
+
+	uncertainty
+		general situation
+			observed variables (evidence):
+				agent knows ceartain things about the state of the world
+			unobserved variables:
+				agent needs to reason about other aspects
+			model:
+				agent knows something about how the known variables relate to the unknown variables
+
+	random variables
+		a random variable is some aspect of the world about which we may have uncertainty
+			R = is it raining?
+			T = is it hot or colds
+			D = domain
+
+		we denote random variables with capital letters
+		like variables in a CSP, random variables have domains
+			R in {true, false}
+			T in {hot, cold}
+			D in [0, infinite]
+
+	prob distributions
+		associate a prob with each value
+			prob of temp
+			prob of weather
+			etc.
+		They have to sum to 1
+
+	unobserved random variables have distributions
+
+	joint distributions
+		a joint dist over a set of random variables specifies a real number for each assignment
+		each entry must be positive and they must all sum to 1
+
+	size of dist if n variables with domain sizes d
+		for all but the smallest dist, impractical to write out
+
+	probabilistic models
+		a prob model is a joint dist over a set of random variables
+		prob models
+			random variables with domains
+			assignments are called outcomes
+			joint dist: say whether assignments are likely
+			normalized sum to 1
+			ideally only certain variables directly interact
+
+		constraint satisfaction problems:
+			variables with domains
+
+	Events:
+		an event is a set E of outcomes
+		from a joint dist, we can calculate the prob of any event
+			prob that it's hot AND sunny??
+		typically, the events we care about are partial assignments, like P(T = hot)
+
+	marginal dist
+		marginal dist are sub-tables which eliminate variables
+		marginalization(summing out): combine collapsed rows by adding
+
+	conditional probability
+		a simple relation between joint and conditional probability
+			in fact, this is taken as the definition of a conditional probability
+				P(a|b) = P(a, b) / P(b)
+					the fraction of the time that a and b occur together when b is occuring
+				P(W = s|T = c) = P(W = s, T = c) / P(T = c)
+
+	Normalization Trick
+
+	to normalize
+		to bring or restore to a normal condition
+			all entries sum to 1
+		procedure
+			1. compute Z = sum over all entries
+			2. divide every entry by Z
+
+	probabilistic inference
+		prob iference: computs a desired prob from other
+			known probs
+
+	inference by enumeration
+		general case:
+			evidence variables E_1 ... E_k = e_1 ... e_k
+			Query* varaible Q
+			hidden varaibles H_1 ... H_r
+		we want
+			P(Q|e_1 ... e_k)
+		step 1.
+			select the entries consistent with the evidence
+		step 2.
+			sum out H to get joint of Query and evidence
+
+		problems
+			worst-case time complexity O(d^n)
+			space complexity O(d^n) to store the joint distribution
+
+	The product Rule
+		sometimes have conditional distributions but want the joint
+			P(y)P(x|y) = P(x, y)
+
+	The chain rule
+		more generally, can always write any joint dist as an incremental product
+			of conditional distr
+		P(x_1, x_2, x_3) = P(x_1)P(x_2|x_1)P(x_3|x_1, x_2)
+
+		Why is this always true?
+
+	Bayes' rule
+		two ways to factor a joint distribution over two variables
+			P(x, y) = P(x|y)P(y) = P(y|x)P(x)
+		dividing, we get
+			P(x|y) = P(x|y)/P(y) • P(x)
+		why is this at all helpful?
+			lets us build one conditional from its reverse
+			often one conditional is tricky but the other one is simple
+			foundation of many systems we'll see later
+
+		in the running for most important equation in AI
+
+	P(cause|effect) = P(effect|cause)P(cause) / P(effect)
+
+# VIDEO LECTURE 13 - Bayes' Nets Representation
+	What do we do with our prob models?
+		we need to reason about unknown variables
+	explanation
+	prediction
+	value of information
+
+		two variables are independent if
+			x, y: P(x, y) = P(x)P(y)
+			this says that their joint dist factors into a product two simpler distributions
+		independence is a simplifying modeling assumption
+			empirical joint dist: at best close to independent
+			what could we assume for weather, traffic, cavity, toothache?
+			P(Tache, cavity, catch)
+			P(+catch|+tache, +cavity) = P(+catch|+cavity)
+
+	Conditional Independence
+		unconditional independence very rare
+		conditional independence is our most basic and robust form of knowledge about uncertain environments
+		X is conditionally independent of Y given Z
+
+	Conditional independence and the chain rule
+		chain rule does some crazy shit
+		trivial decomposition
+			P(Traffic, Rain, Umbrella) =
+				P(Rain)P(Traffic|Rain)P(Umbrella|Rain, Traffic)
+
+	Bayes' Nets
+		Two problems with using full joint dist tables as our prob models
+			unless there are only a few variables, the joint is way too big to represent explicitly
+			hard to learn anything empirically about more than a few variables at a time
+		Bayes' Nets: a technique for describing complex joint dist using simple local  dist
+			more proeperly called graphical models
+			we describe how variables locally interact
+
+	Graphical model notation
+		nodes: variables with domains
+			can be observed or unobserved
+		arcs: interactions
+			similar to CSP constraints
+			indicate direct influence between variables
+			formally: they encode conditional independence
+
+	Bayes' nets semantics
+		a set of nodes, one per variable X
+		a directed acyclic graph
+		a conditional distribution for each node
+			a collection of dist over X, one for each comvination of parents' values
+			CPT: conditional prob table
+			description of a noisy
+
+	Probs in BNs
+		BNets implicitly encode joint dist
+			as a product of local conditional dist
+			to see what prob a BN gives to a full assignment, multiply all the relevant conditionals together
+
+	Probs in BNs
+		chain rule P(x_i|x_1, ... x_i-1) = P(x_i|parents(X_i))
+		assume conditional independencies
+																			   n
+			consequence: P(X_1, x_2, .. x_2) = ∏P(x_i|parents(X_i))
+                                        i=1
+		not every BN can represent every join dist
+			the topology enforces certain conditional independencies
+
+	Causality
+		When bayes' nets reflect the true causal patterns
+			often simpler
+			easier to think about
+			easier to elicit from experts
+		BNs need to not actually be causal
+			sometimes not causal net exists
+			consider Traffic and Drips
+			end up with arrows that reflect correlation, not causation
+		What do the arrows mean?
+			topology may happen to encode causal structure
+			topology really encodes conditional independence
+				P(x_i|x_1, ...x_i-1) = P(x_i|parents(X_i))
+	BNets
+		we know how to encode a joint dist
+
+# VIDEO LECTURE 14 - Bayes' Nets Inference
+
+	Bnets representation
+		a directed acyclic graph, one node per random variable
+		a conditional prob table for each node
+			a collection of distributions over X, one for each combination of parents' values
+		Bayes' nets implicitly encode joint distributions
+			as a product of local
+
+	Inference
+		inference: calculating some useful quantity from a join prob dist
+		ex.
+			posterior prob
+				P(Q|E_1 = e_1, ... E_k = e_k)
+
+	BNets
+		representation
+		prob inference
+			enumeration(exact, exponential complexity)
+			variable elimination(exact, worst-case exponential complexity, often better)
+			inference is NP-complete
+			sampling
+		learning BNets from data
+
+	infer by enumeration
+		general case
+			evidence variable E_1 ... E_k = e_1 ... e_k  \
+			query* variables 	Q                           = X_1, X_2, ... X_n
+			hidden variables 	H_1 ... H_r                /   All variables
+		we want
+			P(Q|e_1 ... e_k)
+		What do you do if someone gives you a full table?
+			step 1. you start knocking off variables
+								condense the entries by selected the entries consistent with the evidence
+			step 2. Sum out H to get joint of Query and evidence
+			step 3. Normalize
+								• 1/Z
+			Z = ∑ P(Q, e_1 ... e_k)
+			    q
+		given unlimited time, inference in BNs is easy
+				P(B | +j, +m) did john and mary call?
+			proportional B P(B, +j, +m) = ∑ P(B, e, a, +j, +m)
+		                               e,a
+																	 = ∑ P(B)P(e)P(a | B, e)P(+j|a)P(+m | a)
+																	 	e,a
+		is this a good idea?
+			very expensive but it works
+			P(Antilock | observed variables) = ?
+
+	Factors
+		we're going to compute factors and join them to follow the flow of factors
+		Joint dist P(X, Y)
+			entries P(x, y) for all x, y
+			sums to 1
+			This is going to create a table of all combinations that sums to 1
+		selected joint P(x, Y)
+			a slice of the joint dist
+			entries P(x, y) for fixed x, all y
+			sums to P(x)
+		Number of capitals = dimensionality of the table
+		single conditional P(Y | x)
+			entries P(y | x) for fixed x, all
+			sums to 1
+		family of conditionals P(X | Y)
+			multiple conditionals
+			entries P(x | y) for all x, y
+			sums to |Y|
+		specified family P(y | X)
+			entries P(y | x) for fixed y, but for all x
+			sums to ... whatever
+		in general, when we write P(Y_! .. Y_N | X_1 ... X_M)
+			it is a factor, a multi-dimensional array
+
+	infer by enum: outline
+		track objects called factors
+		initial factors are local CPTSs (one per node)
+		any known values are selected
+		procedure: join all factors, then eliminate all hidden variables
+
+	join factors
+		combining factors
+			just like db join
+			get all factors over the joining variable
+			build a new factor over the union of the variables involved
+		you can do this over multiple joins
+
+	eliminate
+		marginilization
+		take a factor and sum out a variable
+			shrinks a factor to a smaller one
+			a projection operation
+
+	infer by enum vs var elim
+			enum is slow because you join up the whole joing dist before summing out hidden vars
+			interleave and marginalize!
+				var elim
+				NP-hard
+
+	evidence
+		if evidence, start with factors that select that evidence
+
+	general var elim
+		query P(Q | E_1 = e_1, ... E_k = e_k)
+		start with initial factors
+			local CPTs
+		while there are stil hidden vars
+			pick a hidden var H
+			join all factors mentioning H
+			elim (sum out) H
+		join all remaining factors and normalize
+
+	variable elim ordering
+	VE computational and space complexity
+		the complexity of VE is determined by the largest factor
+	the elim ordering can greatly affect the size of the largest factor
+	does there always exist an ordering that only results in small factors?
+
+	Sampling (approximate)
+
+
+# VIDEO LECTURE 15 - Bayes' Nets Sampling
+	BNets representation
+		a directed, acyclic graph, one node per random variable
+		BNets implicitly encode joint distributions
+			as a product of local conditional dist
+			to see what prob a BN gives to a full assignment, multiply
+				all the relevant conditionals together
+
+	Var elim
+		interleave joining and marginalizing
+		d^k entries computed for a factor over k variables with domain sizes d
+		ordering of elim of hidden vars can affect size of factors generated
+		worst case
+			running time is exponential in the size of the net
+
+	sampling basics
+		sampling from a given distribution
+			step 1. get sample u from uniform dist over [0, 1]
+			step 2. convert this sample u into an outcome for the given dist
+								by having each outcome associated with a sub-interval of [0, 1]
+								with sub-interval size equal to the prob of the outcome
+	sampling
+		prior sampling
+			ignore evidence, sample from the joint probability
+			do inference by counting the right samples
+			For i = 1, 2, ... ,n
+				sample x_i from P(X_i | parents(X_i))
+			return (x_1, x_2, ..., x_n)
+			if we get a bunch of samples, how do we compute the probability of doubling?
+				we count...?
+			if we want to know P(W)
+				we have counts <+w:4, -w:1>
+				normalize to get P(W) = <+w:0.8, -w:0.2>
+				this will get closer to the true dist with more samples
+				can estimate anything else too
+				what about P(C | +w)? P(C | +r, +w)? P(C | -r, -w)?
+			this process generate samples with probability:
+			                    n
+				S_PS(x_1...x_n) = ∏ P(x_i | Parents(x_i)) = p(x_1...x_n)
+												 i=1
+			let the number of samples of an event be N_PS(x_1...x_n)
+
+		rejection sampling
+			let's say we want P(C | +s)
+				tally C outcomes, but ignore samples which don't have S=+s
+				it is also consistent for conditional probabilities
+			likelihood weighting
+				problem with rejection sampling
+					if evidence is unliely, rejects lost of samples
+					evidence not exploited as you sample
+					consider P(Shape|Blue)
+						prob of shape given the color is blue
+							a lot of work just to reject evidence
+				idea: fix evidence vars and sample the rest
+					commit to color = blue // WRONG
+					problem: sample distributions not consistent
+					solution: weight by probability of evidence given parents
+				There are going to be weights associated with the probabilty that something was true
+					i.e. everything is blue, but the weights determine how correct that was
+
+		likelihood sampling
+			IN: evidence instantiation
+~!~
+
+			w = 1.0
+			for 1=1, 2, ..., n
+				if X_i is an evidence variable
+					X_i = observation x_i for X_i
+					set w = w • P(x_i | parents(X_i))
+				else
+					sample x_i from P(X_i | parents(X_i))
+				return (x_1, x_2, ..., x_n), W
+
+~!~
+
+			sampling dist if z sampled and e fixed evidence
+			               l
+				S_WS(z, w) = ∏ P(z_i | parents(Z_i))
+                    i=1
+				l = total number of variables - evidence variables
+			now, samples have weights
+				          m
+				w(z, e) = ∏ P(e_i | parents(E_i))
+				         i=1
+			together, weighted sampling dist is consistent
+					S_WS(z, e) • w(z, e) = ∏ P(z_i) some other shit ..
+			likelihood weighting is good
+				we have taken evidence into account as we generate the sample
+				Here, W's value will get picked based on the evidence values S, R
+			likelihood weighting doesn't solve all our problems
+				evidence influences the choice of downstream vars, but not upstream ones
+			we would like to consider evidence when we sample every var
+
+		Gibb's sampling
+			keep track of a full instantiation x_1, x_2, ..., x_n
+				start with an arbitrary instantiation consistent with the evidence. Sample
+				one var at a time, conditioned on all the rest, but keep evidence fixed. Keep repeating this for a long time.
+			in the limit of repeating this infinitely many times, the resulting sample is coming from the correct dist
+			both upstream and downstream vars condition on evidence
+			Step 1. Fix evidence
+				R=+r
+			Step 2. initialize other vars
+				randomly
+			Step 3. Repeat
+				choose a non-evidence var X
+				resample X from P(X | all other vars)
+			Step 4.
+				Profit
+			efficient resampling
+				for example sample from P(S | +c, +r, -w)
+			many things cancel out, only CPTs remain
+
+# VIDEO LECTURE 16 - Decision Networks and Value of Information
+	gameplay
+		checkers
+		chess
+		go
+	decision networks and value of perfect information
+	decision network
+	choose the action which maximizes the expected utility given the evidence
+		can directly operaionalize this with decision networks
+			bayes nets with nodes for utility and actions
+			lets us calculate
+	action selection
+		instantiate evidence
+		set action nodes each possible way
+		calculate posterior for all parents of utility node, given the evidence
+		calculate expected utility for each action
+		choose maximizing action
+	decisions as outcome trees
+
+	MEU(F = bad) = max a EU(a | bad)
+
+	value of information
+		idea: compute value of acquiring evidence
+			can be done directly from decision network
+		example: buying ol drilling rights
+			two blocks A and B, one has oil worth k
+			you can drill in one locaiton
+			prior porbabilities 0.5 wach, & mutually exclusive
+			drilling in either A or B has EU = k/2, MEU = k/2
+		question: what's he balue of information of O?
+			value of knowing which of A or B has oil
+			value is expected gain in MEu from new info
+			survey may say oil in A or oli in B, prob 0.5 ofor each
+			if we know oilloc, MEU is k
+
+		VPI(E' | e) = (∑ P(e' | e)MEU(e, e')) - MEU(e)
+		               e'
+
+# VIDEO LECTURE 17 - VPIs and Markov Models
+# VIDEO LECTURE 18 - HMMs
+# VIDEO LECTURE 19 - HMM Filtering
+
+# VIDEO LECTURE 22 - Deep Learning I
+
+	Feature-based ranking
+	feature vector
+	PAY ATTENTION
+	we are building a feature vector to feed to our neural network
+	we need to find a proper weight vector
+	perceptron for ranking
+		inputs x
+		candidates y
+		many feature vectors f(x, y)
+		one weight vector w
+			prediction
+				y = arg max_y w • f(x, y)
+			update if wrong
+				w = w + f(x, y^*) - f(x, y) <<-- decreases score of y
+
+	score of a q-state (s, a) given by
+		w • f(s, a)

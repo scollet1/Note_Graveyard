@@ -1,0 +1,521 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    DIYNN.txt                                          :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: scollet <marvin@42.fr>                     +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2017/06/30 13:24:24 by scollet           #+#    #+#              #
+#    Updated: 2017/06/30 14:41:11 by scollet          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+# PART UN
+
+imagine a basic machine that takes a question, does some "thinking" and pushes out an answer.
+
+error = truth - calculated
+  reduce error
+
+error tells us how much to modify our values
+
+trying an answer and improving it repeatedly is iteratively solving
+
+graphs can be used to classify data. more specifically, linear functions inside simple predictors can be used
+  to classify previously unseen data
+
+a classifier must be trained to properly classify data, much like a human would
+  properly collected data will reveal truths about the data that we can use to compare and classify
+  examples of truth used to teach a predictor or a classifier are called the training data
+
+error = (desired target - actual output)
+
+t = target value
+A = slope of line
+
+~!~   y = Ax
+~!~   E = t - y
+~!~   t = (A + ∆A)x
+
+t - y = (A + ∆A)x - Ax
+  E = t - y = Ax + (∆A)x - Ax
+~!~   E = (∆A)x
+
+if you want to know how much to adjust A to improve the slope of the line so it is a better classifier
+  simply re-arrange the last equation to find ∆A
+
+~!~   ∆A = E / x
+
+we can use error E to refine the slope A
+
+we should moderate updates to the line by taking a fraction of ∆A
+
+if training data contains noise, we can use moderation to dampen those out
+
+~!~   ∆A = L • (E / x)
+
+sometimes one classifier is not enough
+
+we use logical operators to compare data
+  logical AND is only true if both points A AND B are true
+  logical OR is only true if either points A OR B are true
+  logical XOR is only true if either points A OR B are true but not both
+
+Only produce an output signal if the input is sufficiently dialed up to pass a threshold
+  a function that takes the input signal and generate an output signal - with some threshold -
+  is called an activation function.
+
+for example, the smooth, s-shaped Sigmoid function, sometimes called the Logistic function is
+  y = 1 / (1 + eˆ-x)
+
+e is a mathematical constant 2.71828...
+x is the input and is negated.
+The result is added to 1
+The inverse is taken by division under 1
+
+the Sigmoid function is very easy to do calculations with
+
+for example:
+  take inputs a, b, c
+  x is the sum of all inputs a, b, c
+    x = a + b + c
+  y(x) is the Sigmoid Threshold Function(STF) as applied to x
+    y = 1 / (1 + eˆ-x)
+  y is the output
+
+if the combined signal is not large enough then the effect of the STF is to suppress the output
+  signal, else if the sum x is large enough then the neuron will fire
+
+a weight is associated with each connection between neurons
+  weights will either amplify or suppress a signal
+
+starting with random weights may not be a bad idea
+  we might do some other cool shit though, so watch out
+
+our updated example looks as such:
+  take inputs a, b, c
+  weight inputs with w and pass those values into the neuron
+  repeat steps from earlier
+
+~!~   x = (output from first node • link weight) + (output from second node • link weight)
+
+Matrix multiplication is pretty dope
+
+matrices allow us to compress writing all those calculations into a very simple short form.
+  they also fit nicely with our computer languages (C)
+
+a matrix is just a table, go figure
+
+matrices need to be compatible to be multiplied
+  you can't multiply a 2x2 by a 5x5
+  this kind of multiplication would be a dot product or an inner product
+
+The first matrix contains the weights between nodes of two layers. The second matrix contains
+  the signals of the first input layer
+
+for example:
+~!~   x = (input_1 * w[1,2]) + (input_2 * w[2,1])
+
+Now we can express all the calculations that go into working out the combined, moderated signal, x
+  and this can be expressed concisely as
+  X = W • I
+
+W is a matrix of weights
+I is a matrix of inputs
+X is a matrix of combined moderated signals into layer 2
+
+O = sigmoid(X)
+
+O is a matrix which contains all the outputs from the final layer of the neural network
+
+X = W • I applies the calculations between one layer and the next
+
+the inputs into the final layer are the outputs from the second layer O. The weights are the
+  links between the second and third layers W, not those for the first and second.
+~!~  X = W • O
+
+once we do all our matrix math, we can compare the final output to the training data and
+  generate an error
+
+Q: How do we update link weights when more than one node contributes to an output and its error??
+
+We might be able to split the error equally amongst all contributing nodes
+
+Another distribution of error involves targeting greater link weights
+
+forward propagation is using the weights to send signals forward from the input to the output
+  layers in the neural network
+
+backward propagation is sending the error backwards through the network
+
+~!~   e = (t - o)
+
+the fraction of e, at any time, used to refine w is
+  w_21 / (w_11 + 2_21)
+
+e is distributed to give more to the weight that is larger
+
+if w_11 is twice as large as w_21, say 6 and 3 respectively, then the fraction e used to update
+  w_11 is 6 / (6 + 3) = 3 / 9
+
+we want to create a matrix of errors to propagate as such:
+~!~   e[] = wˆT • error
+
+Q: How do we actually update the weights??
+
+First off, we propagate the error back because it's used to adjust how the link weights improve
+  the overall answer given by the neural network
+
+So there's some crazy shit happening. This next expression shows the output node's output as a
+  function of the inputs and the link weights for a simple 3 layer neural network
+
+the input at node i is x_i
+the weights for links connecting input node i to hidden node j is e_i,_j
+the output of hidden node j is x_j
+the weights for links connecting hidden node j to output node k is w_j,_k
+∑_a ˆb means sum the subsequent expression for all values between a and b
+
+or, you know, we could just choose randomly
+
+that's brute force though
+
+so embrace pessimism because it's about to get a lot worse
+
+let's employ something that makes a lot more sense. Traversing peaks and valleys using
+  G r a d i e n t  D e s c e n t
+
+the gradient refers to the slope of the ground. you want to go down
+
+imagine the slope as a mathematical function
+  we can keep refining the answer as we descend
+
+a necessary refinement is to change the size of the the steps we take to avoid overshooting the
+  minimum and forever bouncing around it
+
+to avoid ending up in the wrong valley, or function minimum, we train neural networks several
+  times starting from different points on the hill to ensure we don't always end up fucked
+
+a very simple error function starts as a difference
+  (target - actual)
+
+we can improve this by using an absolute value to remove any negative values produced
+  |target - actual|
+
+this isn't very popular because the slope isn't continuous near the minimum and this makes
+  gradient descent not work very well, otherwise: it overshoots
+
+we can improve this even further by taking the difference squared
+  (target - actual)ˆ2
+
+this is good for a few reasons including
+  ez math
+  smooth and continuous error function
+  the gradient gets smaller near the minimum
+
+get creative, you can combine shit to make it work do gooder
+
+to do gradient descent we now need to calculate the slop of the error function with respect to
+  the weights. STRAP IN, THIS REQUIRE CALCULUS
+
+  gE / gw_jk
+
+  otherwise known as: how does error E change as the weight w_jk changes
+
+  gE / gw_jk = g / gw_jk ∑_n(t_n - o_n)ˆ2
+
+the output at node n, which is o_n, only depends on the links that connect to it
+  for a node k, the output o_k only depends on weights w_jk
+
+this independence means we can remove all the o_n from that sum except the one that the weight
+  w_jk links to that is o_k
+
+here is the simplest it can get right now
+  gE / gw_jk = g / gw_jk (t_k - o_k)ˆ2
+
+t_k is a constant and doesn't vary.
+
+here's some cool
+  gE / gw_jk = gE / go_k • go_k / gw_jk
+
+let's attack each simpler bit. First we take a derivative of a squared function
+  gE / gw_jk = -2(t_k - o_k) • go_k / gw_jk
+
+o_k is the output of the node k which is the Sigmoid function applied to the weighted sum of the
+  connected oncoming signals.
+
+  gE / gw_jk = -2(t_k - o_k) • g / gw_jk sigmoid(∑_j w_jk • o_j)
+
+o_j is the output from the previous hidden layer node
+
+Q: how do we differentiate the sigmoid function???
+  A: g / gx sigmoid(x) = sigmoid(x)(1 - sigmoid(x))
+
+this final answer describes the slope of the error function so we can adjust the weight w_jk
+  gE / gw_jk = -(t_k - o_k) • sigmoid(∑_j w_jk • o_j)(1 - sigmoid(∑_j w_jk • o_j)) • o_j
+
+  the slope of the error function for the weights between the input and the hidden layers
+  gE / gw_ij = -(e_j) • sigmoid(∑_i w_ij • o_i)(1 - sigmoid(∑_i w_ij • o_i)) • o_i
+
+so, kids, remember that the weights are changed in a direction opposite to the gradient
+  we also moderate the change by using a learning factor
+  this kinda ensures that we don't overshoot
+
+  new w_jk = old w_jk - a • gE / gw_jk
+
+the symbol alpha ais a factor which moderates the strength of these changes to make sure we don't
+  overshoot. It is called a learning rate
+
+so , the matrix form of weight update matrices is right myeah
+  ∆w_jk = a • E_k • sigmoid(O_k) • (1 - sigmoid(O_k)) • O_j ˆT
+
+wait hold on, actually
+  gE / gw_jk = -(t_k - o_k) • sigmoid(∑_j w_jk • o_j)(1 - sigmoid(∑_j w_jk • o_j)) • o_j
+
+  the first diddly (t_k - o_k) is the error
+  the sum inside the sigmoid functions ∑_j w_jk o_j is some shit
+
+how do you prepare training data???
+
+i already know how
+
+we should use an activation function value of 0.01 to 0.99 because both 0.0 and 1.0 are actually
+  impossible targets
+
+same shit applies to inputs and outputs. we should avoid large initial weights because they cause
+  large signals into an activation function, leading to the saturation we just talked about
+
+we shall choose intial weights randomly and uniformly from a range -1.0 to +1.0
+
+Q: Can we do better than that?
+  A: Probably.
+
+the weights should be initialized by randomly sampling from a range that is roughly the inverse of
+  the square root of the number of links into a node
+  for example:
+    if each node has 3 links into it then the initial weights should be in the range
+      1 / (√3)
+
+very large weights would saturate the activation functions
+  not good
+
+don't set the initial weights the same constant value, especially zero
+  also not good
+
+
+# PART DEUX
+
+In this section we'll make our own neural network.
+
+Yeah we fuckin' will.
+
+### ACHTUNG ###
+
+A neural network class should have at least the three following
+  1. initialization to set the number of input, hidden, and output nodes
+  2. training to refine the weights after being given a training set
+  3. querying to give an answer from the output nodes after being given an input
+
+init();
+
+train();
+
+query();
+
+begin with initialization.
+
+init(int inodes, int hnodes, int onodes, lrate)
+{
+
+}
+
+no, let's make a struct
+
+~!~
+
+typedef struct s_link {
+  float **wih;
+  float **who;
+}              t_link;
+
+typedef struct s_init {
+  int   inodes;
+  int   hnodes;
+  int   onodes;
+  float lrate;
+}             t_init;
+
+typedef struct s_train {
+
+}              t_train;
+
+typedef struct s_query {
+  float   dot;
+}              t_query;
+
+typedef struct s_nn {
+  t_init  init;
+  t_train train;
+  t_query query;
+  t_link  link;
+}              t_nn;
+
+~!~
+
+the next step of the neural network is to create the network of nodes and links. Link weights are the most important
+
+we should create two things
+  1. a matrix for the weights for links between the input and hidden layers
+  2. another matrix for the links between the hidden and output layers
+
+the initial value of the link weights should be small and random.
+
+~!~
+
+t_nn nn;
+
+nn.link.wih = construct_weights(nn.init.hnodes, nn.init.inodes);
+nn.link.who = construct_weights(nn.init.onodes, nn.init.hnodes);
+
+float **construct_weights(int rows, int cols, float **matrix)
+{
+  matrix = (float*)calloc(rows, sizeof(float));
+  while(rows >= 0)
+  {
+    rows = ARBITRARY VALUE
+    matrix[rows] = (float*)calloc(cols, sizeof(float));
+    while(cols >= 0)
+    {
+      matrix[rows][cols] = rand_weights(-0.9, 0.9);
+      --cols;
+    }
+    --rows;
+  }
+  return (matrix);
+}
+
+
+float rand_weights(float mu, float sigma)
+{
+  float U1, U2, W, mult;
+  static float X1, X2;
+  static int call = 0;
+
+  if (call == 1)
+    {
+      call = !call;
+      return (mu + sigma * (float) X2);
+    }
+
+  do
+    {
+      U1 = -1 + ((float) rand () / RAND_MAX) * 2;
+      U2 = -1 + ((float) rand () / RAND_MAX) * 2;
+      W = pow (U1, 2) + pow (U2, 2);
+    }
+  while (W >= 1 || W == 0);
+
+  mult = sqrt ((-2 * log (W)) / W);
+  X1 = U1 * mult;
+  X2 = U2 * mult;
+
+  call = !call;
+
+  return (mu + sigma * (float) X1);
+}
+
+~!~
+
+we are now ready to create the initial weight matrices in our program. These weights are an intrinsic part of a neural
+  network and live with the neural network for all its life
+
+now we need to query the network
+
+the query function takes the input to a neural network and returns the network's output. We need to pass the input
+  signals from the input layer of nodes, through the hidden layer, and out the final output layer. We need to use link
+  weights to moderate the signals as they feed into any given hidden or output node. We use the Sigmoid activation
+  function to squish the signal coming our of those nodes
+
+This example shows how we can use matrix math to our advantage
+  X_hidden = W_input_hidden • I
+
+~!~
+
+  hidden_inputs = dot_product(nn.link.wih, inputs);
+
+~!~
+
+to get the signals emerging from the hidden node, we simply apply the sigmoid squashing function to each of these
+  emerging signals
+
+  O_hidden = sigmoid(X_hidden)
+
+~!~
+
+//here's some bullshit code in python: self.activation_function = lambda x: scipy.special.expit(x)
+//here's that same code in C:
+float **sigmoid(float **hi);
+hidden_outputs = sigmoid(hidden_inputs);
+
+~!~
+
+okay, hold the fucking phone, let's slow down for a minute
+
+the signals emerging from the hidden layer nodes are in the matrix called hidden_outputs
+
+some code calculates hidden layer signals and output layer signals
+
+~!~
+
+hidden_inputs = dot_product(nn.link.wih, inputs);
+hidden_outputs = sigmoid(hidden_inputs);
+
+final_inputs = dot_product(nn.link.who, hidden_outputs);
+final_outputs = sigmoid(final_inputs);
+
+~!~
+
+so far we have some bunk-ass code
+
+cool, but we haven't defined the train function yet
+  there are two phases to training
+    1. calculating the output just as query() does
+    2. backpropping the errors to inform how the link weights are refined
+
+there are two parts to training
+  1. working out the output for a given training example
+  2. taking this calculated output and comparing it with the desired output and using the difference to gudie the
+    updating of the network weights
+
+~!~
+
+t_nn train(int **inputs, int **targets, t_nn nn)
+{
+  inputs = ;
+  targets = ;
+
+  hidden_inputs = dot_product(nn.link.wih, inputs);
+  hidden_outputs = sigmoid(hidden_inputs);
+  final_inputs = dot_product(nn.link.who, hidden_outputs);
+  final_outputs = sigmoid(final_inputs);
+  return nn;
+}
+
+~!~
+
+we need to calculate the error, ok?
+
+ok
+
+~!~
+
+output_errors = targets - final_outputs
+
+hidden_errors = dot_product(nn.link.who, output_errors);
+
+nn.link.who += nn.link.lrate * dot_product((output_errors * final_outputs * (1.0 - final_outputs)),
+                                            reverse(hidden_outputs));
+
+nn.link.wih += nn.link.lrate * dot_product((hidden_errors * hidden_outputs * (1.0 - hidden_outputs)),
+                                            reverse(inputs));
+
+~!~

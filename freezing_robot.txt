@@ -1,0 +1,161 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    freezing_robot.txt                                 :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: scollet <marvin@42.fr>                     +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2017/06/26 21:55:24 by scollet           #+#    #+#              #
+#    Updated: 2017/06/26 21:55:25 by scollet          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+# The "freezing robot problem" (FRP)
+  the FRP occurs when the Robot(agent) believes the environment to be unsafe due
+    to massive uncertainty
+  if every path is expected to collide with an object or agent neither the Robot
+    nor the object are taking the necessary actions in the given time to continue
+    progressing, then the Robot either makes no forward progress or takes extremely
+    inefficient and evasive actions to avoid collisions with the crowd
+
+    hence, "the frozen Robot"
+
+  an informed model would limit the predictive uncertainty about the crowd motion to allow the
+    robot to identify feasible paths.
+
+  We want to explicitly model the interactions among the agents and between the robot and the
+    crowd for the purpose of navigation.
+
+    "Interacting Gaussian Model"
+
+  the IGM is a principled statistical model based on dependent output Gaussian Processes
+
+  IGP describes a probabilistic interaction between multiple navigating entities. Efficient
+    planning is naturally implemented using particle-based systems
+
+  IGP leads to shorter and safer paths than those taken by the observed pedestrians
+
+  - formalize FRP
+  - model interaction based on IGP's
+
+  -- formalizing the FRP --
+
+  Agent i where index i can take values in the set {R, 1, 2, ..., n}
+    set[i]
+  i = R indicates the Robot
+
+  if we have a prior distribution p(f^(i)) over the agent's trajectory
+    === f^(i) = (f_1^(i), ..., f_T(i))
+  over T time steps, where each f_t^(i) = (x_t, y_t) === R^2 is the planar location of the
+  agent i at time t
+
+  the likelihood function p(z_t^(i) | f_t^(i)) for observations
+
+  after obtaining the first t(ime) observations z_1:t'^(i) we can perform Bayesian
+    inference to calculate the posterior p(f^(i) | z_1:t^(i))
+
+  factorizable prior joint function distribution over trajectories
+    p(f^(i), ..., f^(n)) = PI_over_i * p(f^(i))
+
+  the posterior remains independent
+    p(f^(1), ..., f^(n) | z_1:t) = PI_over_i * p(f^(i) | z_1:t ^(i))
+
+  z_1:t = {z_1:t^(i)}_i=1 ^n is the set of observations about all agents
+
+  the goal in dynamic navigation is to pick a policy PI that adaptively chooses a path f^(R)
+    for the robot based on its observations
+
+  The policy PI is typically specified by R^2 ' or f_t+1 ^(R) given observations z_1:t
+
+  the robot can potentially en up choosing a different path f^(R) = PI(z_1:T)
+
+  The cost J(PI) of policy PI is the expected cost
+    J(PI) = INTEGRALp(f, z_1:T)c(PI(z_1:T)), f^(1), ..., f^(n))dfdz1:T
+
+  for a fixed robot trajectory f^(R), the cost function c(f^(R), f(1), ..., f^(n)) models
+    the length of the path plus penalties for colliding with any agents
+
+  the observations z_1:T do not depend on the robot's actions.
+
+  Solving for the optimal policy PI requires solving a continuous-state MDP
+    The dimensionality grows linearly with the number of agents
+
+  Tractable approximation to the MDP is a method called Receding Horizon Control(RHC). RHC proceeds
+    similar to an MDP but online.
+
+  As observations become available, RHC calculates based on a cost function, the optimal non-adaptice action
+    to take at that time
+
+  if J(f^(R) | z_1:t) is the objective function that calculates the "cost" of each path f^(R) based on the
+    observations z_1:t otherwise known as
+      J(f^(R) | z_1:t) = INTEGRAL * c(f^(R), f^(1), ..., f^(n))p(f | z_1:t)df
+        where f^(R) is the trajectory of the robot, then RHC finds f_t ^*
+          where f_t ^* = arg_min_over_f^(R) * J(f^(R) | z_1:t)
+
+  as each new observation z_HALFPI arrives, for HALFPI > t, a new path f_HALFPI ^* is calculated and
+    executed until another observation arrives
+
+  in order to solve for FRP, an approach called partially close loop receding horizon control anticipates
+    the observations. If you can control the covariance, then you can keep the value of J(f^(R) | z_1:t) low
+    for some trajectories f^(R) and thus solve the FRP
+
+  in severely crowded environments, even the optimal solution to the MDP suffers from "freezing robot"
+    we can lower bound the optimal MDP cost by E_z1:t[min_over f^(R) * J(f^(R) | z_1:T)]
+    this lower bound can still be prohibitively expensive
+
+  the agent motion model is agnostic of the navigating robot. One solution is to include an interaction
+    between the Robot and the agents in order to lower the MDP cose
+
+  consider a robot action as an agent action and model a joint distribution describing their interaction
+    p(f^(R), f |, z_1:t)
+
+  this distribution encodes the idea of cooperative planning and joint collision avoidance
+
+  a Gaussian Process(GP)is distributed over functions and is well-suited to model trajectoreis.
+
+  a GP is a collection of Gaussian random variables indexed by a set, in our case, time steps {1, ..., T}
+    and parameterized by a mean function m and covariance level k
+
+  the kernel parameterizes the smoothness of the function and can be learned from data
+
+  GP's generalize linear models such as Kalman filters by replacing the Markov assumption with a smoothness
+    function
+
+  THis leads to less diffuse predictions.
+
+  model each agent's trajectory as an independent sample from a GP. f^(i) ~ GP(0, k)
+    we formalize the model for 1-D locations only - multiple dimensions are supported by modeling each
+    dimension as a separate GP
+
+  given observation z_1:t ^(i) through time t, we calculate the individual posterior as
+    p(f^(i) | z_1: ^(i)) = GP(f(i), m_t ^(i), k_t ^(i))
+      where m_t ^(i) * (t') = SIGMA_1:t,t' ^(T) * (SIGMA_1:t,1:t + sigma^2 * I)^-1 * z_1:t ^(i),
+        k_t ^(i) * (t_1, t_2) = k(t_1, t_2) - SIGMA_1:t,t_1 ^(T) * (SIGMA_1:t,1:t + sigma^2 * I)^-1
+          * SIGMA_1:t,t_2
+
+  Hereby, SIGMA1:t,t' = [k(1, t'), k(2, t')], ..., k(t, t')], and SIGMA_1:t,1:t is the matrix such that the
+    (i, j) entry is SIGMA_i,j = k(i, j) and the indices (i, j) take values from 1:t. Lastly, sigma^2 is the
+    measurement noise.
+
+  the GP formalism estimates the entire trajectory in a non-Markovian way. This allows us to incorporate
+    goal information in a principled way, such that the resulting distribution over trajectories reflects
+    the full impact of the additional data.
+
+  treat the final step of the trajectory as the goal, observing z_T ^(i) to be the perceived goal
+
+  if we vary the amount of measurement noise, we can encode how certain we are about the goal
+
+  for z_T ^(R), we set the noise very small. Waypoints along the trajectory can be encoded in a similar
+    manner
+
+  I must capture dynamic interactions by introducing dependencies between the GPs. Begin with independent
+    priors
+      p(f^(R) | z_1:t, p(f^(1) | z_1:t), ..., p(f^(n) | z_1:t))
+    and couple them by multiplying in an interaction potential
+      PSI(f^(R), f) = PSI(f^(R), f^(1), ..., f^(n))
+    so that
+      pIGP(f^(R), f | 1_1:t) = (1 / Z) * PSI(f^(R), f) n over_PI_over 1=R * p(f^(i) | 1_1:t)
+
+  the product n over_PI_over 1=R is meant to indicate that the Robot is included in the calculation. The
+    interaction potential may very well be chosen as
+      PSI

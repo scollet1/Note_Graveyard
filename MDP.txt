@@ -1,0 +1,73 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    MDP.txt                                            :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: scollet <marvin@42.fr>                     +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2017/06/23 08:37:25 by scollet           #+#    #+#              #
+#    Updated: 2017/06/23 08:37:26 by scollet          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+# An Introduction to MDPs
+
+  an MDP model contrains:
+    a set of possible world states S
+    a set of possible actions A
+    a real valued reward function R(s, a)
+    a description T of each action's effects in each state
+
+  The effects of an action taken in a state depend only on that state and not on history
+
+  T: S * A -> S for each state and action, we specify a new state
+  T: S * A -> Prob(S) for each state and action we specify a probability dist. over next states
+    P(s' | s, a)
+
+  A policy PI is a mapping from S to A
+  Following a policy PI
+    determine the current state s
+    execute action PI(s)
+    repeat
+
+  How good is policy PI in state S?
+  How do we compare policies of infinite value?
+
+  An objective function maps infinite sequences of rewards to single real numbers
+
+  Options include:
+    setting a finite horizon and just total the reward
+    discount to prefer earlier rewards
+    average reward rate in the limit
+
+  discounting is perhaps the most analytically tractable and most widely studied approach
+
+  A reward n steps away is discounted by GAMMA^n for discount rate 0 < GAMMA < 1
+    models mortality: you may die at any moment
+    models preference for shorter solutions
+    a smoothed out version of limited horizon lookahead
+
+  we use cumulative discounted reward as our objective
+
+  Max value <= M + G * M + G^2 * M + ... = 1 / (1 - G) * M
+
+  A value function V_PI : S -> R represents the expected objective value obtained from following policy PI in
+    each state S
+
+  Value function partially order the policies
+    At least one optimal policy exists
+    All optimal policies have the same value V^*
+
+  Bellman equations relate the value function to itself via the problem dynamics
+
+  Discounted objective function
+    V_PI * (s) = R(s, PI(s)) + (SIGMA_over s'===S) + T(s, PI(s), s') * g * V_PI(s')
+    V^* * (s) = MAX_a===A (R(s, a) + (SIGMA_over s'===S) * T(s, a, s') * g * V^*(s'))
+
+  in each case, there is one equation per state in S
+
+  finite-horizon values at adjacent horizons are related by the action dynamics
+    V_PI,0 * (s) = R(s, PI(s))
+    V_PI,n * (s) = R(s, a) + (SIGMA_over s'===S) * T(s, a, s') * g * V_PI,n-1 * (s')
+
+  

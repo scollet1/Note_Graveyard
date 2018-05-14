@@ -1,0 +1,20 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    survival.txt                                       :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: scollet <marvin@42.fr>                     +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2017/06/26 21:21:29 by scollet           #+#    #+#              #
+#    Updated: 2017/06/26 21:21:32 by scollet          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+# On Reward Functions for Survival - Naoto Yoshida
+
+  At each time step t, the agent receives an observation o_t from the state s_t by the observation prob. It replied with action a_t
+  The state of the env changed to s' and the agent receives a reward r_t = r(s_t, a_t)
+
+  The agent uses a sequence of observations and actions - called a history h_t = {o_0, a_o, o_1, a_1, ...}
+
+  how the agent reacts in the environment can be described by a probability π(a|h) called the policy.

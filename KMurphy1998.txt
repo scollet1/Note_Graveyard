@@ -1,0 +1,31 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    notes.txt                                          :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: scollet <marvin@42.fr>                     +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2017/06/14 18:53:20 by scollet           #+#    #+#              #
+#    Updated: 2017/06/14 19:02:03 by scollet          ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+The transition matrix of a Markov DP depends on the action taken by the agent at each time step. The agent recieves a reward proportionate to the
+	the action and the state.
+The gola is to find a policy which specifies the action to take in each state so as to maximize some function of the sequence of rewards. 
+Policy iteration is one form of solving this problem.
+
+The transition matrix may be defined as T(s, a, s') = Pr[S(k + 1)=s' | S(k) = s, A(k) = a]
+
+The reward function may be defined as R(s, a, s') = E[R(k + 1) | S(k) = a, A(k) = a, S(k + 1) = s']
+
+These functions are defined under the assumption that states, actions, and times are discrete. For the chosen problem sets, they are.
+
+The value of performing action in state may be defined as Q(s, a) = sum_s' T(s, a, s') [R(s, a, s') + gV(s')]
+
+g (gamma) is some value between 0 and 1. It is the ammount we discount future rewards by. V(s) is the overall value of state s
+
+V(s) = max_a Q(s, a,) = max_a sum_s' T(s, a, s') [R(s, a, s') + gV(s)]
+
+The value of a state is the maximum expected reward we will recieve in that state plus the expected discounted value of all possible successor 
+	states s'
