@@ -1,0 +1,62 @@
+Not everything that is possible is legal
+
+goal vs. adversary
+	1. policy -> confidentiality, integrity, availability
+	2. threat model -> set of assumptions about advers.
+	3. mechanism -> soft/hard/sys to protect
+
+every system has a breaking point
+
+Policies:
+	recovery questions
+		from password to -> you just have to know a bit about the user
+	be conservative to reduce points of failure across shared services
+		i.e. gmail reset -> apple reset -> amazon reset; yields gmail account
+
+Threat Models:
+	humans are points of failure
+	TMs change over time
+		MIT 1980s - Kerberos -> 56bit keys DES
+			easy to iterate w/ current hardware
+		SSL/TLS -> presents cert., bad assumption to totally trust cert. authorities
+		DARPA -> secure OS; hacked unsecure machine w/ source code to introduce back door
+
+Mechanisms:
+	mechanisms can always fail
+	iCloud -> didn't keep track of how many times you tried to log in
+		iterate mosty likely passwords
+		don't allow multiple consecutive attempts
+		small mistakes have big consequences
+
+
+Control Hijacking Attacks ------
+
+Buffer overflows:
+	- sys/soft is often written in C
+		C exposes raw mem. addresses
+		C does not check bounds
+	- knowledge of x86 arch
+	buffer overflows lead to arbitrary code execution
+	
+	avoid BO:
+		1. avoid bugs in your C code
+		2. build tools that allow programmers to find bugs
+			examine all branches in unit tests to fuzz for code
+		3. use a mem.-safe language
+			challenges:
+				w/ legacy code
+				w/ little access to low levels HW
+				w/ performance -> JIT compilation somewhat solves this dynamically
+	
+	the atcker exploits 2 things:
+		1. gaining control over the intruction pointer
+		2. make that pointer point to malicious code
+
+	stack canaries:
+		need to catch overwrite of return address before jump
+		any overflow would have to hit the canary before the return address
+		
+	when canaries fail:
+		1. when the attcker overwrites function ptrs.
+		can atckers guess randomness?
+						
